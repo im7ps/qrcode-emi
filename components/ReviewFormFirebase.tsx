@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User } from "firebase/auth";
-import { db } from "@/lib/firebase";
+import { User, signInWithPopup } from "firebase/auth";
+import { auth, googleProvider, db } from "@/lib/firebase";
 import {
   collection,
   addDoc,
@@ -22,17 +22,25 @@ interface Review {
   userPhotoUrl?: string;
 }
 
-interface ReviewFormFirebaseProps {
-  user: User | null;
-}
-
-export function ReviewFormFirebase({ user }: ReviewFormFirebaseProps) {
+export function ReviewFormFirebase() {
+  const [user, setUser] = useState<User | null>(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // Check auth state
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Load reviews from Firestore
   useEffect(() => {
@@ -64,21 +72,24 @@ export function ReviewFormFirebase({ user }: ReviewFormFirebaseProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!user) {
-      alert("Per favore accedi con Google prima di lasciare una recensione.");
-      return;
-    }
-
     setLoading(true);
 
     try {
+      // Se l'utente non è loggato, fai il login con Google
+      let currentUser = user;
+      if (!currentUser) {
+        const result = await signInWithPopup(auth, googleProvider);
+        currentUser = result.user;
+        setUser(currentUser);
+      }
+
+      // Salva la recensione su Firestore
       await addDoc(collection(db, "reviews"), {
-        name: user.displayName,
-        email: user.email,
+        name: currentUser.displayName,
+        email: currentUser.email,
         rating: parseInt(rating.toString()),
         comment,
-        userPhotoUrl: user.photoURL,
+        userPhotoUrl: currentUser.photoURL,
         createdAt: Timestamp.now(),
       });
 
@@ -95,13 +106,16 @@ export function ReviewFormFirebase({ user }: ReviewFormFirebaseProps) {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="text-center py-8 text-gray-600">
-        <p>Per lasciare una recensione, accedi con Google.</p>
-      </div>
-    );
-  }
+  const handleSignOut = async () => {
+    try {
+      await auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
+  if (!mounted) return null;
 
   return (
     <div className="space-y-8">
@@ -149,13 +163,39 @@ export function ReviewFormFirebase({ user }: ReviewFormFirebaseProps) {
           <p className="text-xs text-gray-500 mt-1">{comment.length}/500</p>
         </div>
 
+        {/* User Info if logged in */}
+        {user && (
+          <div className="flex items-center justify-between gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-3">
+              {user.photoURL && (
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName || "User"}
+                  className="w-10 h-10 rounded-full"
+                />
+              )}
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{user.displayName}</p>
+                <p className="text-xs text-gray-600">{user.email}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="text-xs font-medium text-red-600 hover:text-red-700 whitespace-nowrap"
+            >
+              Cambia account
+            </button>
+          </div>
+        )}
+
         {/* Submit Button */}
         <button
           type="submit"
           disabled={loading || !comment.trim()}
           className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-semibold text-lg"
         >
-          {loading ? "Invio in corso..." : "Invia Recensione"}
+          {loading ? "Invio in corso..." : user ? "Invia Recensione" : "Accedi con Google e Invia"}
         </button>
 
         {/* Success Message */}

@@ -14,7 +14,8 @@
       "Bash(curl *)",
       "Bash(vercel status *)",
       "Bash(npm install *)",
-      "Bash(git commit -m 'Add Firebase authentication and Firestore integration *)"
+      "Bash(git commit -m 'Add Firebase authentication and Firestore integration *)",
+      "Bash(git commit -m 'Improve review flow: login on submit instead of before *)"
     ]
   }
 }

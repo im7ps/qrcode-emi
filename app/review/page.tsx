@@ -1,17 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { User } from "firebase/auth";
-import { GoogleAuth } from "@/components/GoogleAuth";
 import { ReviewFormFirebase } from "@/components/ReviewFormFirebase";
 
 export default function ReviewPage() {
-  const [user, setUser] = useState<User | null>(null);
-
-  const handleAuthChange = (newUser: User | null) => {
-    setUser(newUser);
-  };
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -24,19 +15,13 @@ export default function ReviewPage() {
           <p className="text-sm text-gray-500">Viale Calabria, 356</p>
         </div>
 
-        {/* Google Auth Section */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Accedi con Google</h2>
-          <GoogleAuth onAuthChange={handleAuthChange} />
-        </div>
-
         {/* Review Form Section */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Lascia una Recensione</h2>
           <p className="text-gray-600 text-sm mb-6">
-            Accedi con Google per lasciare la tua valutazione e condividere la tua esperienza.
+            Scrivi la tua valutazione e commento. Clicca "Invia" e accedi con Google per pubblicare.
           </p>
-          <ReviewFormFirebase user={user} />
+          <ReviewFormFirebase />
         </div>
 
         {/* Links Section */}
