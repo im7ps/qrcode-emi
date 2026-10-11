@@ -1,11 +1,17 @@
-import { ReviewFormSimple } from "@/components/ReviewFormSimple";
+"use client";
 
-export const metadata = {
-  title: "Lascia una Recensione - L'outlet del Giocattolo",
-  description: "Condividi la tua esperienza con L'outlet del Giocattolo di Reggio Calabria",
-};
+import { useState } from "react";
+import { User } from "firebase/auth";
+import { GoogleAuth } from "@/components/GoogleAuth";
+import { ReviewFormFirebase } from "@/components/ReviewFormFirebase";
 
 export default function ReviewPage() {
+  const [user, setUser] = useState<User | null>(null);
+
+  const handleAuthChange = (newUser: User | null) => {
+    setUser(newUser);
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -18,13 +24,19 @@ export default function ReviewPage() {
           <p className="text-sm text-gray-500">Viale Calabria, 356</p>
         </div>
 
+        {/* Google Auth Section */}
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Accedi con Google</h2>
+          <GoogleAuth onAuthChange={handleAuthChange} />
+        </div>
+
         {/* Review Form Section */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Lascia una Recensione</h2>
           <p className="text-gray-600 text-sm mb-6">
-            Condividi la tua esperienza e aiuta gli altri clienti a scoprire il nostro negozio.
+            Accedi con Google per lasciare la tua valutazione e condividere la tua esperienza.
           </p>
-          <ReviewFormSimple />
+          <ReviewFormFirebase user={user} />
         </div>
 
         {/* Links Section */}
