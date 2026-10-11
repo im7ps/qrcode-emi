@@ -21,6 +21,7 @@ interface Review {
 }
 
 export default function Home() {
+  const [scanned, setScanned] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [mounted, setMounted] = useState(false);
@@ -52,7 +53,6 @@ export default function Home() {
     const updatedReviews = [newReview, ...reviews];
     setReviews(updatedReviews);
 
-    // Save to localStorage
     if (typeof window !== "undefined") {
       localStorage.setItem("reviews", JSON.stringify(updatedReviews));
     }
@@ -60,68 +60,125 @@ export default function Home() {
 
   if (!mounted) return null;
 
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 mb-2">
-            🎁 L'outlet del Giocattolo
-          </h1>
-          <p className="text-xl text-gray-600">
-            Reggio Calabria - I migliori giocattoli al miglior prezzo
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: QR Code */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8 bg-white rounded-xl shadow-xl p-8">
-              <h2 className="text-2xl font-bold text-center mb-6">
-                Condividi con noi
-              </h2>
-              <QRDisplay />
-              <p className="text-xs text-gray-400 text-center mt-6">
-                Inquadra questo QR code o condividilo per visitarci
-              </p>
-            </div>
+  // First screen: QR code only
+  if (!scanned) {
+    return (
+      <main className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+        <div className="text-center space-y-8 max-w-md">
+          {/* QR Code */}
+          <div
+            onClick={() => setScanned(true)}
+            className="cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <QRDisplay />
           </div>
 
-          {/* Right Column: Reviews & Auth */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Authentication Section */}
-            <div className="bg-white rounded-xl shadow-xl p-8">
-              <h2 className="text-2xl font-bold mb-6">✨ Accedi e Recensisci</h2>
+          {/* Simple message */}
+          <p className="text-gray-700 text-lg font-light">
+            Scannerizza il codice QR
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  // Second screen: menu and options
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        {/* Back button */}
+        <button
+          onClick={() => setScanned(false)}
+          className="mb-8 text-gray-600 hover:text-gray-900 text-sm font-medium"
+        >
+          ← Indietro
+        </button>
+
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">
+            L'outlet del Giocattolo
+          </h1>
+          <p className="text-gray-600">Reggio Calabria</p>
+        </div>
+
+        <div className="space-y-8">
+          {/* Login Section */}
+          {!user && (
+            <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Accedi</h2>
               <AuthButtons onLogin={handleLogin} user={user} onLogout={handleLogout} />
             </div>
+          )}
 
-            {/* Review Form Section */}
-            {user && (
-              <div className="bg-white rounded-xl shadow-xl p-8">
-                <h2 className="text-2xl font-bold mb-6">📝 Lascia una Recensione</h2>
-                <ReviewForm
-                  userName={user.name}
-                  userEmail={user.email}
-                  onSubmit={handleReviewSubmit}
-                />
+          {/* User Info */}
+          {user && (
+            <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Benvenuto</p>
+                  <p className="text-lg font-semibold text-gray-900">{user.name}</p>
+                </div>
+                <button
+                  onClick={() => handleLogout()}
+                  className="text-sm text-red-600 hover:text-red-700 font-medium"
+                >
+                  Esci
+                </button>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Reviews List Section */}
-            <div className="bg-white rounded-xl shadow-xl p-8">
-              <h2 className="text-2xl font-bold mb-6">⭐ Le Recensioni della Community</h2>
+          {/* Review Form */}
+          {user && (
+            <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Lascia una recensione</h2>
+              <ReviewForm
+                userName={user.name}
+                userEmail={user.email}
+                onSubmit={handleReviewSubmit}
+              />
+            </div>
+          )}
+
+          {/* Reviews List */}
+          {reviews.length > 0 && (
+            <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Recensioni ({reviews.length})</h2>
               <ReviewsList reviews={reviews} />
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* Footer */}
-        <div className="mt-16 text-center text-gray-600 border-t border-gray-200 pt-8">
-          <p className="mb-2">📍 Viale Calabria, 356 - 89132 Reggio di Calabria (RC)</p>
-          <p className="mb-4">☎️ +39 320 317 5135</p>
-          <p className="text-sm">
-            Orari: Lunedì - Domenica 09:00 - 20:30
-          </p>
+          {/* Social Links */}
+          <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Seguici</h2>
+            <div className="grid grid-cols-1 gap-3">
+              <a
+                href="https://www.instagram.com/loutletdelgiocattolorc/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg transition-shadow font-medium"
+              >
+                Instagram
+              </a>
+              <a
+                href="https://www.facebook.com/outletdelgio/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:shadow-lg transition-shadow font-medium"
+              >
+                Facebook
+              </a>
+            </div>
+          </div>
+
+          {/* Footer Info */}
+          <div className="text-center text-gray-600 text-sm space-y-1 pb-8">
+            <p>Viale Calabria, 356</p>
+            <p>89132 Reggio di Calabria (RC)</p>
+            <p>+39 320 317 5135</p>
+            <p className="pt-2">Lunedì - Domenica: 09:00 - 20:30</p>
+          </div>
         </div>
       </div>
     </main>

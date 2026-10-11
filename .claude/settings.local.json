@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npm create *)",
-      "Bash(npx *)"
+      "Bash(npx *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Redesign: Two-screen layout with QR code first, menu after *)"
     ]
   }
 }
