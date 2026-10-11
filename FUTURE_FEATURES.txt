@@ -1,0 +1,88 @@
+================================================================================
+FUTURE FEATURES - QR Code EMI
+================================================================================
+
+FEATURE: Google My Business Integration
+STATUS: TODO (Rimandato)
+PRIORITY: Medium
+DATE CREATED: 11 Ottobre 2026
+
+================================================================================
+DESCRIPTION
+================================================================================
+
+Attualmente le recensioni vengono salvate nel Firestore Database.
+
+Vogliamo che le recensioni vengano pubblicate DIRETTAMENTE su Google Reviews
+(Google My Business / Google Maps) quando l'utente clicca "Invia Recensione".
+
+Workflow desiderato:
+1. Utente scannerizza QR code
+2. Accede con Google
+3. Lascia una recensione (stelline + commento)
+4. Clicca "Invia Recensione"
+5. La recensione appare AUTOMATICAMENTE su Google Maps/Google Reviews
+6. La recensione viene salvata anche nel nostro Firestore
+
+================================================================================
+SETUP RICHIESTO
+================================================================================
+
+1. GOOGLE MY BUSINESS ACCOUNT
+   - L'outlet del Giocattolo deve avere un account su Google My Business
+   - Il negozio deve essere verificato su Google Maps
+   - Link: https://business.google.com
+
+2. GOOGLE MY BUSINESS API
+   - Abilitare l'API nel Google Cloud Console
+   - Creare credenziali OAuth 2.0
+   - Configurare i redirect URI per Vercel
+
+3. CONFIGURAZIONE FIREBASE/VERCEL
+   - Aggiungere credenziali OAuth a Vercel
+   - Aggiungere il business location ID di Google My Business
+
+================================================================================
+IMPLEMENTAZIONE
+================================================================================
+
+File da modificare/creare:
+- lib/google-business.ts (nuova libreria per Google My Business API)
+- components/ReviewFormFirebase.tsx (aggiungere integrazione)
+- app/review/page.tsx (gestione delle credenziali)
+
+Dipendenze da installare:
+- @googleapis/mybusinessaccountmanagement (Google API client)
+
+Passi:
+1. Ottenere il location ID di Google My Business
+2. Configurare OAuth per l'app
+3. Modificare ReviewFormFirebase per:
+   - Salvare in Firestore
+   - Pubblicare su Google My Business API
+   - Mostrare il risultato all'utente
+4. Testare con una vera recensione su Google Maps
+
+================================================================================
+RISORSE
+================================================================================
+
+Google My Business API Documentation:
+https://developers.google.com/my-business
+
+Google Places API (Reviews):
+https://developers.google.com/maps/documentation/places/web-service/reviews
+
+OAuth 2.0 Setup:
+https://developers.google.com/identity/protocols/oauth2
+
+================================================================================
+NOTE
+================================================================================
+
+- Questa funzionalità è OPZIONALE per il funzionamento base dell'app
+- Il sistema attuale (Firestore) funziona perfettamente
+- Aggiungere questa integrazione richiede ~2-3 ore di setup e testing
+- Consigliato di farla DOPO che il negozio ha verificato il Google My Business
+
+================================================================================
