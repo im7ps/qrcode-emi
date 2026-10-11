@@ -4,7 +4,11 @@
       "Bash(npm create *)",
       "Bash(npx *)",
       "Bash(git add *)",
-      "Bash(git commit -m 'Redesign: Two-screen layout with QR code first, menu after *)"
+      "Bash(git commit -m 'Redesign: Two-screen layout with QR code first, menu after *)",
+      "Bash(vercel deploy *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://qrcode-emi.vercel.app)",
+      "Bash(npm run *)",
+      "Bash(git commit -m 'Complete redesign: Separate QR code and review pages *)"
     ]
   }
 }
